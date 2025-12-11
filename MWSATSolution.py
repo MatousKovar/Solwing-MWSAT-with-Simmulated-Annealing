@@ -80,6 +80,10 @@ class MWSATSolution:
         #flip bit
         self.variable_values[variable-1] = 1 - self.variable_values[variable-1]
 
+
+    def is_satisfied(self):
+        return self.clauses_satisfied == self.instance.num_clauses
+
     def generate_neighbor(self):
         """
         Generates a neighbor by flipping one random variable.

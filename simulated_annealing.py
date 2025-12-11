@@ -18,7 +18,8 @@ def simulated_annealing(instance: MWSATInstance,
                         P0: float, 
                         cooling_coefficient: float, 
                         equilibrium_steps: int, 
-                        max_steps_without_improvement: int):
+                        max_steps_without_improvement: int,
+                        fitness_coefficient: float = None):
     """
     Simulated Annealing Solver for MWSAT.
     
@@ -49,12 +50,16 @@ def simulated_annealing(instance: MWSATInstance,
             
             neighbor = current_state.generate_neighbor()
 
-            # delta is how better or worse the solution is in terms of clauses satisfied
-            delta = neighbor.clauses_satisfied - current_state.clauses_satisfied
+            # delta is how better or worse the solution is in terms of clauses satisfied combined with normalized sum of weights
+            if fitness_coefficient:
+                normalized_score = (neighbor.current_score - current_state.current_score) / instance.max_weight
+                delta = (neighbor.clauses_satisfied - current_state.clauses_satisfied) + fitness_coefficient * normalized_score
+            else:
+                delta = neighbor.clauses_satisfied - current_state.clauses_satisfied
 
             # delta should fallback to score if clauses satisfied is same
-            if delta == 0:
-                delta = (neighbor.current_score - current_state.current_score) / instance.max_weight
+            # if delta == 0:
+            #     
             
             if compare_states(neighbor,current_state):
                 current_state = neighbor
@@ -82,7 +87,8 @@ def set_delta(instance: MWSATInstance,
               initial_temperature: float, 
               cooling_coefficient: float, 
               equilibrium_steps: int, 
-              steps: int):
+              steps: int,
+              fitness_coefficient: float = None):
     current_state = MWSATSolution(instance)
     best_state = current_state.copy()
     temperature = initial_temperature
@@ -98,10 +104,13 @@ def set_delta(instance: MWSATInstance,
             neighbor = current_state.generate_neighbor()
 
             # delta is how better or worse the solution is in terms of clauses satisfied
-            delta = neighbor.clauses_satisfied - current_state.clauses_satisfied
-            
-            if delta == 0:
-                delta = (neighbor.current_score - current_state.current_score) / instance.max_weight
+            if fitness_coefficient:
+                normalized_score = (neighbor.current_score - current_state.current_score) / instance.max_weight
+                delta = (neighbor.clauses_satisfied - current_state.clauses_satisfied) + fitness_coefficient * normalized_score
+            else:
+                delta = neighbor.clauses_satisfied - current_state.clauses_satisfied            
+            # if delta == 0:
+            #     delta = (neighbor.current_score - current_state.current_score) / instance.max_weight
 
             if compare_states(neighbor,current_state):
                 current_state = neighbor
