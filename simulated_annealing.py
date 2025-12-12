@@ -19,7 +19,7 @@ def simulated_annealing(instance: MWSATInstance,
                         cooling_coefficient: float, 
                         equilibrium_steps: int, 
                         max_steps_without_improvement: int,
-                        fitness_coefficient: float = None):
+                        fitness_coefficient: float):
     """
     Simulated Annealing Solver for MWSAT.
     
@@ -34,7 +34,7 @@ def simulated_annealing(instance: MWSATInstance,
     best_state = current_state.copy()
 
     # setting initial temperature
-    delta_avg = set_delta(instance,1e6,cooling_coefficient = 1,equilibrium_steps=100,steps=3000)
+    delta_avg = set_delta(instance,1e6,cooling_coefficient = 1,equilibrium_steps=100,steps=3000,fitness_coefficient=fitness_coefficient)
 
     temperature = abs(delta_avg) / abs(np.log(P0))
 
@@ -45,18 +45,20 @@ def simulated_annealing(instance: MWSATInstance,
     while steps_without_improvement < max_steps_without_improvement:
         
         # first parameter in whitebox phase - how many steps in equilibrium?
-        for _ in range(equilibrium_steps):
+        for _ in range(equilibrium_steps * instance.num_vars):
             steps_without_improvement += 1
             
             neighbor = current_state.generate_neighbor()
 
             # delta is how better or worse the solution is in terms of clauses satisfied combined with normalized sum of weights
-            if fitness_coefficient:
-                normalized_score = (neighbor.current_score - current_state.current_score) / instance.max_weight
-                delta = (1-fitness_coefficient) * (neighbor.clauses_satisfied - current_state.clauses_satisfied) + fitness_coefficient * normalized_score
-            else:
-                delta = neighbor.clauses_satisfied - current_state.clauses_satisfied
-
+            # if fitness_coefficient:
+            #     normalized_score = (neighbor.current_score - current_state.current_score) / instance.max_weight
+            #     delta = (1-fitness_coefficient) * (neighbor.clauses_satisfied - current_state.clauses_satisfied) + fitness_coefficient * normalized_score
+            # else:
+            #     delta = neighbor.clauses_satisfied - current_state.clauses_satisfied
+            neighbor_fittness = neighbor.current_score - (fitness_coefficient * instance.max_weight * (instance.num_clauses - neighbor.clauses_satisfied))
+            current_fittness = current_state.current_score - (fitness_coefficient * instance.max_weight * (instance.num_clauses - current_state.clauses_satisfied))
+            delta = neighbor_fittness - current_fittness
             # delta should fallback to score if clauses satisfied is same
             # if delta == 0:
             #     
@@ -98,19 +100,24 @@ def set_delta(instance: MWSATInstance,
     step_counter = 0
     while step_counter < steps:
         
-        for _ in range(equilibrium_steps):
+        for _ in range(equilibrium_steps * instance.num_vars):
             step_counter += 1
             
             neighbor = current_state.generate_neighbor()
 
             # delta is how better or worse the solution is in terms of clauses satisfied
-            if fitness_coefficient:
-                normalized_score = (neighbor.current_score - current_state.current_score) / instance.max_weight
-                delta = (1-fitness_coefficient) * (neighbor.clauses_satisfied - current_state.clauses_satisfied) + fitness_coefficient * normalized_score
-            else:
-                delta = neighbor.clauses_satisfied - current_state.clauses_satisfied            
-            # if delta == 0:
-            #     delta = (neighbor.current_score - current_state.current_score) / instance.max_weight
+            # if fitness_coefficient:
+            #     normalized_score = (neighbor.current_score - current_state.current_score) / instance.max_weight
+            #     delta = (1-fitness_coefficient) * (neighbor.clauses_satisfied - current_state.clauses_satisfied) + fitness_coefficient * normalized_score
+            # else:
+            #     delta = neighbor.clauses_satisfied - current_state.clauses_satisfied            
+            # # if delta == 0:
+            # #     delta = (neighbor.current_score - current_state.current_score) / instance.max_weight
+            
+            neighbor_fittness = neighbor.current_score - (fitness_coefficient * instance.max_weight * (instance.num_clauses - neighbor.clauses_satisfied))
+            current_fittness = current_state.current_score - (fitness_coefficient * instance.max_weight * (instance.num_clauses - current_state.clauses_satisfied))
+            delta = neighbor_fittness - current_fittness
+
 
             if compare_states(neighbor,current_state):
                 current_state = neighbor
