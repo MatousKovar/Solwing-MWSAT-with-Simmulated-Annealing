@@ -5,10 +5,15 @@ ProblémŘešíme Multi-Agent Pathfinding (MAPF) – hledání cest pro více ag
 Pohyb: Pokud je agent na políčku $u$ v čase $t$, musí být v čase $t+1$ na sousedním políčku (nebo čekat). Žádné teleportování.
 Konzistence: Agent se nesmí rozdojit (být na dvou místech zároveň).
 Kolize: Dva agenti nesmí být ve stejném čase na stejném políčku.
-Prohození: Agenti se nesmí křížit (prohodit si místa na hraně) ve stejném kroku.ProstředíPracujeme na čtvercové mřížce (grid) o velikosti $N \times N$. V tomto konkrétním zadání je mřížka uvažována jako volný prostor bez statických překážek (zdí), řešíme pouze vyhýbání se agentů navzájem.
+Prohození: Agenti se nesmí křížit (prohodit si místa na hraně) ve stejném kroku.ProstředíPracujeme na čtvercové mřížce o velikosti N. V tomto konkrétním zadání je mřížka uvažována jako volný prostor bez statických překážek, řešíme pouze vyhýbání se agentů navzájem.
 
 
-ImplementaceJazyk: Python.Knihovna: python-sat (konkrétně solver Glucose3).Princip: Skript zkouší hledat řešení pro čas $T=1, T=2, \dots$, dokud nenajde plán, kde jsou splněny všechny podmínky.
+ImplementaceJazyk: Python.Knihovna: python-sat .Princip: Skript zkouší hledat řešení pro čas $T=1, T=2, \dots$, dokud nenajde plán, kde jsou splněny všechny podmínky.
+
+## Spuštění
+spuštění pomocí mapf_sat.py <název souboru> soubory přiloženy tři: mapf1.txt, mapf2.txt. mapf3.txt
+
+pro instalaci sat knihovny pro python stačí spustit: pip install python-sat
 
 ## Ukázkový běh
 ```
