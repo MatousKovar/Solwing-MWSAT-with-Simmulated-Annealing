@@ -1,0 +1,1 @@
+Implementation of a Simulated Annealing algorithm for the Maximum Weight SAT (MWSAT) problem. Created as a semester project for the Combinatorics and Optimization course at FIT CTU. The work was awarded 29/30 points. Source code is located in src, and the detailed report is available in the PDF.
